@@ -27,18 +27,21 @@ int main()
 
     //creates the clusters that the data will clump around.
     for(int i = 0; i < clusterCount; i++){
+        //x values will range from 100 - 500
         float xPosition = rand() % 401 + 100;
+
+        //y values will range from 100 - 400
         float yPosition = rand() % 301 + 100;
 
         sf::Vector2 centroid = sf::Vector2(xPosition,yPosition);
         clusters.push_back(centroid);
     }
 
-    for(int j = 0; j < 100; j++){
+    for(int j = 0; j < 300; j++){
         //selects one of the random centroids in the vector clusters
         int cluster = rand() % clusters.size();
-        float xPointPosition = clusters[cluster].x + static_cast<float>(rand() % 81 - 30);
-        float yPointPosition = clusters[cluster].y + static_cast<float>(rand() % 81 - 30);
+        float xPointPosition = clusters[cluster].x + static_cast<float>(rand() % 101 - 30);
+        float yPointPosition = clusters[cluster].y + static_cast<float>(rand() % 101 - 30);
         
         sf::CircleShape p;
         p.setPosition({xPointPosition,yPointPosition});
