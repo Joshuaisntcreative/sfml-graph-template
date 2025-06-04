@@ -1,61 +1,36 @@
 #include <SFML/Graphics.hpp>
-#include <vector>
-#include <ctime>
-#include <cstdlib>
+#include <chrono>
 
-void populate_Colors(std::vector<sf::Color> &colors){
-    colors.push_back(sf::Color::White);
-    colors.push_back(sf::Color::Red);
-    colors.push_back(sf::Color::Blue);
-    colors.push_back(sf::Color::Yellow);
-}
+
 
 int main()
 {
-
-    srand(time(0));
-    auto window = sf::RenderWindow(sf::VideoMode({800u, 600u}), "CMake SFML Project");
+    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
     window.setFramerateLimit(144);
 
-    std::vector<sf::CircleShape> arrays;
-    std::vector<sf::Color> colors;
-    populate_Colors(colors);
-    std::vector<sf::Vector2f> clusters;
-    int clusterCount = 3;
-
-
-
-    //creates the clusters that the data will clump around.
-    for(int i = 0; i < clusterCount; i++){
-        //x values will range from 100 - 500
-        float xPosition = rand() % 401 + 100;
-
-        //y values will range from 100 - 400
-        float yPosition = rand() % 301 + 100;
-
-        sf::Vector2 centroid = sf::Vector2(xPosition,yPosition);
-        clusters.push_back(centroid);
-    }
-
-    for(int j = 0; j < 300; j++){
-        //selects one of the random centroids in the vector clusters
-        int cluster = rand() % clusters.size();
-        float xPointPosition = clusters[cluster].x + static_cast<float>(rand() % 101 - 30);
-        float yPointPosition = clusters[cluster].y + static_cast<float>(rand() % 101 - 30);
-        
-        sf::CircleShape p;
-        p.setPosition({xPointPosition,yPointPosition});
-        p.setFillColor(sf::Color::White);
-        p.setOutlineColor(sf::Color::Black);
-        p.setRadius(10);
-        p.setOutlineThickness(.5);
-        arrays.push_back(p);
-
-    }
-
-
+    sf::CircleShape ball;
+    ball.setRadius(60);
+    ball.setOrigin({ball.getRadius(), ball.getRadius()});
+    ball.setOutlineColor(sf::Color::Red);
+    ball.setPosition({160,430});
+    ball.setOutlineThickness(5);
     
 
+    sf::RectangleShape cliff;
+    cliff.setPosition({100,500});
+    cliff.setOutlineColor(sf::Color::Blue);
+    cliff.setOutlineThickness(5);
+    cliff.setFillColor(sf::Color::Transparent);
+    cliff.setSize({200,500});
+
+
+    float gravity = 980.0f;
+    //intial velocity
+    sf::Vector2f velocity(400.0f, 0.0f);
+
+    float wallFriction = .2f;
+
+    sf::Clock clock;
     while (window.isOpen())
     {
 
@@ -66,11 +41,35 @@ int main()
                 window.close();
             }
         }
-        
-        window.clear();
-        for (auto circle : arrays){
-            window.draw(circle);
+        //every frame you calling this function
+        //clock.restart will return the time that has passed since the last restart.
+        sf::Time elapsed = clock.restart();
+        float deltaTime = elapsed.asSeconds();
+
+
+        velocity.y += gravity * deltaTime;
+
+        sf::Vector2f position = ball.getPosition();
+        if (position.y + ball.getRadius() * 2 >= 1080)
+        {
+            velocity.y = 0;
         }
+
+
+        position += velocity * deltaTime;
+
+        if (position.x + ball.getRadius() + ball.getOutlineThickness() >= 1920)
+        {
+            position.x = 1920 - ball.getRadius() -ball.getOutlineThickness();
+            velocity.x = -velocity.x * wallFriction;
+        }
+
+        ball.setPosition(position);
+
+
+        window.clear();
+        window.draw(ball);
+        window.draw(cliff);
         window.display();
     }
 }
