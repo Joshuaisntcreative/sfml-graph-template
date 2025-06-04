@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <chrono>
+#include <iostream>
 
 
 
@@ -26,9 +27,11 @@ int main()
 
     float gravity = 980.0f;
     //intial velocity
-    sf::Vector2f velocity(400.0f, 0.0f);
-
+    sf::Vector2f velocity(400.0f, -700.0f);
+    std::cout << "time to reach max height is: " << velocity.y / gravity << std::endl;
     float wallFriction = .2f;
+    float totalTime = 0.0f;
+    bool maxHeightReached = false;
 
     sf::Clock clock;
     while (window.isOpen())
@@ -45,17 +48,23 @@ int main()
         //clock.restart will return the time that has passed since the last restart.
         sf::Time elapsed = clock.restart();
         float deltaTime = elapsed.asSeconds();
+        totalTime += deltaTime;
 
-
+        // Detect peak by checking sign change
+        if (!maxHeightReached && velocity.y > 0.0f)
+        {
+            maxHeightReached = true;
+            std::cout << "Ball reached max height at: " << totalTime << " seconds" << std::endl;
+        }
         velocity.y += gravity * deltaTime;
 
+
         sf::Vector2f position = ball.getPosition();
+
         if (position.y + ball.getRadius() * 2 >= 1080)
         {
-            velocity.y = 0;
+            velocity.y = -velocity.y * wallFriction;
         }
-
-
         position += velocity * deltaTime;
 
         if (position.x + ball.getRadius() + ball.getOutlineThickness() >= 1920)
